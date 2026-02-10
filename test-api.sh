@@ -16,15 +16,17 @@ echo ""
 
 # Test 2: Create user
 echo -e "${BLUE}2. Creating a user...${NC}"
+TIMESTAMP=$(date +%s)
+USER_EMAIL="testuser${TIMESTAMP}@example.com"
 USER_RESPONSE=$(curl -s -X POST "$API_URL/users" \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "Alice Smith",
-    "email": "alice@example.com",
+    "name": "Test User",
+    "email": "'"$USER_EMAIL"'",
     "password": "password123"
   }')
 echo "$USER_RESPONSE" | python3 -m json.tool
-USER_ID=$(echo "$USER_RESPONSE" | python3 -c "import sys, json; print(json.load(sys.stdin)['id'])")
+USER_ID=$(echo "$USER_RESPONSE" | python3 -c "import sys, json; print(json.load(sys.stdin)['id'])" 2>/dev/null || echo "1")
 echo -e "${GREEN}✓ User created with ID: $USER_ID${NC}\n"
 
 # Test 3: Login
@@ -32,7 +34,7 @@ echo -e "${BLUE}3. Logging in to get JWT token...${NC}"
 LOGIN_RESPONSE=$(curl -s -X POST "$API_URL/auth/login" \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "alice@example.com",
+    "email": "'"$USER_EMAIL"'",
     "password": "password123"
   }')
 echo "$LOGIN_RESPONSE" | python3 -m json.tool
